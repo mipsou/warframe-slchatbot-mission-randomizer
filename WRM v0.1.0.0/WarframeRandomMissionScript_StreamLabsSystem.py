@@ -199,15 +199,15 @@ def Init():
 	
 	rMissions = WorldDataMissions.getRegularDict()
 	Parent.Log('regMisLen', str(len(rMissions)))
-	PrintMissions(rMissions)
+	PrintMissions('rMis', rMissions)
 	aMissions = WorldDataMissions.getAlertDict()
-	PrintMissions(aMissions)
+	PrintMissions('aMis', aMissions)
 	fMissions = WorldDataMissions.getFissureDict()
-	PrintMissions(fMissions)
+	PrintMissions('fMis', fMissions)
 	iMissions = WorldDataMissions.getInvasionDict()
-	PrintMissions(iMissions)
+	PrintMissions('iMis', iMissions)
 	cMissions = WorldDataMissions.getCetusDict()
-	PrintMissions(cMissions)
+	PrintMissions('cMis', cMissions)
 	return
 
 #---------------------------------------
@@ -343,7 +343,7 @@ def ScriptToggled(state):
 def Tick():
 	return
 
-def PrintMissions(missionDict):
+def PrintMissions(origin, missionDict):
 	try:
 		iterData = iter(missionDict)
 		isIter = True
@@ -353,7 +353,7 @@ def PrintMissions(missionDict):
 	if isIter:
 		for subsection in iterData:
 			printme = json.dumps(missionDict[subsection], encoding='utf-8', ensure_ascii=False)
-			Parent.Log('Imis',printme)
+			Parent.Log(origin,printme)
 	
 def PrintWorldData(worldData):
 	for section in worldData:

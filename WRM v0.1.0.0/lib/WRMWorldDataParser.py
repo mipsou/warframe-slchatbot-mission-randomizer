@@ -61,7 +61,7 @@ def ExtractAlertMissions(data, settings, parent):
 		node = mission['MissionInfo']['location']
 		solNodeInfo = solNodes[node]
 		mission['MissionInfo']['solNode'] = solNodeInfo
-		mission['spType'] = 'alert'
+		mission['MissionInfo']['spType'] = 'alert'
 		
 		missionDict[node] = Mission.Mission(False, node, mission['MissionInfo'])
 	

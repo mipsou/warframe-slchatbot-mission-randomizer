@@ -12,12 +12,20 @@ import sqlite3
 import sys
 import time
 
-def GetMissionTypeDict():
-	missionTypesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/missionTypes.json")
-	if missionTypesJSON and os.path.isfile(missionTypesJSON):
-		with codecs.open(missionTypesJSON) as f:
-			missionTypes = json.load(f)
-	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
+def GetMissionTypeDict(source):
+	if source == 'mission':
+		missionTypesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/missionTypes.json")
+		if missionTypesJSON and os.path.isfile(missionTypesJSON):
+			with codecs.open(missionTypesJSON) as f:
+				missionTypes = json.load(f)
+		sys.path.append(os.path.join(os.path.dirname(__file__), "../../lib/classes"))
+	elif source == 'bounty':
+		languagesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/languages.json")
+		if languagesJSON and os.path.isfile(languagesJSON):
+			with codecs.open(languagesJSON) as f:
+				missionTypes = json.load(f)
+		sys.path.append(os.path.join(os.path.dirname(__file__), "../../lib/classes"))
+		
 	return missionTypes
 	
 def GetFactionNames():
@@ -89,7 +97,9 @@ class Node:
 			
 			factionNames = GetFactionNames()
 			if 'faction' in data:
-				self.faction = factionNames[data['faction']]
+				self.faction = factionNames[data['faction']]['value']
+			elif data['solNode']['enemy'] in factionNames:
+				self.faction = factionNames[data['solNode']['enemy']]['value']
 			else:
 				self.faction = data['solNode']['enemy']
 			

@@ -25,7 +25,7 @@ def GetRelicsDict():
 
 #--------------------------------------------
 #
-#JSON Special MissionInfo:
+#Alert MissionInfo:
 #	MissionReward
 #		countedItems
 #			[ItemType: type, ItemCount: int]
@@ -52,8 +52,76 @@ def GetRelicsDict():
 #		value: name (<zone>),
 #   	enemy: enemy,
 #    	type : missionType
+#
+#Fissure MissionInfo:
+#	Region: <zone>
+#	Modifier: <VoidTier>
+#	MissionType: <MissionType>
+#	Activation: 
+#		$date
+#			$numberLong: LongInt
+#	Expiry:
+#		$date
+#			$numberLong: LongInt
+#	_id:
+#		$oid: <idString>
+#	Seed: <SeedInt>
+#	Node: <SolNode>
+#
+#Invasion MissionInfo:
+#	Node: solNode
+#	_id:
+#		$oid: <idString>
+#	Faction: FactionString
+#	Completed: Boolean
+#	Count: Int
+#	LocTag: LanguageString
+#	Goal: Int
+#	Activation:
+#		$date:
+#			$numberLong: LongInt
+#	Expiry
+#		$date
+#			$numberLong: LongInt
+#	AttackReward:
+#		[] OR
+#		countedItems: [
+#			ItemType: LanguageString
+#			ItemCount: int ]
+#	DefenderReward:
+#		[] OR
+#		countedItems: [
+#			ItemType: LanguageString
+#			ItemCount: int ]
+#	AttackerMissionInfo:
+#		seed: Int
+#		faction: FactionString
+#	DefenderMissionInfo:
+#		seed: Int
+#		faction: FactionString
+#
+#Cetus MissionInfo:
+#	Tag: "CetusSyndicate"
+#	_id:
+#		$oid: <idString>
+#	Nodes: [null]
+#	Seed: int
+#	Jobs: [
+#		jobType: <BountyString>
+#		minEnemyLevel: int
+#		maxEnemyLevel:	int
+#		masteryReq: int
+#		rewards: <TierXTableRewards>
+#		xpAmounts: [
+#			<int>]]
+#	Activation:
+#		$date:
+#			$numberLong: LongInt
+#	Expiry
+#		$date
+#			$numberLong: LongInt
 #--------------------------------------------
-#	MissionInfo is found on any special mission JSON point
+#
 
 class Mission:
 	def __init__(self, nData, node, spData):
@@ -62,6 +130,7 @@ class Mission:
 			if type(node) is str:
 				self.node = Node.Node(nData, node, True)
 				self.basic = True
+				self.spType = 'Nope'
 			else: # REDUNDANT?
 				self.activation = nData.Activation
 				self.expiry = nData.Expiry
@@ -75,19 +144,21 @@ class Mission:
 					self.spType = spData['spType']
 				else:
 					self.spType = 'LOST'
+		
+		
 		return
 		
 	def toDict(self):
 		node = self.getNode()
 		id = self.getNodeId()
 		dictNode = node.toDict()
-		return {'id': id,'node': dictNode,'isBasic': self.isBasic()}
+		return {'id': id,'node': dictNode,'isBasic': self.isBasic(),'spType': self.getSpType()}
 	
 	def toJson(self):
 		node = self.getNode()
 		id = self.getNodeId()
 		jsonNode = node.toDict()
-		jsonMission = {'id': id,'node': jsonNode,'isBasic': self.isBasic()}
+		jsonMission = {'id': id,'node': jsonNode,'isBasic': self.isBasic(), 'spType': self.getSpType()}
 		return json.dumps(jsonMission, ensure_ascii=False, encoding="utf-8")
 	
 	def getNode(self):
@@ -110,6 +181,9 @@ class Mission:
 		
 	def isBasic(self):
 		return self.basic
+	
+	def getSpType(self):
+		return self.spType
 		
 	def getActivation(self):
 		if type(self.activation) is str:
