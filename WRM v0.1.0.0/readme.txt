@@ -1,4 +1,8 @@
 
+First version of mission list parsing complete.
+	Still have some fields to add to Mission class
+Then onto the randomizer
+
 First Pass
 -Fetch data every X minutes ( defaults to 5 )
 -Toggle Special missions
