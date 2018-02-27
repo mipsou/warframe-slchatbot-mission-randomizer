@@ -13,6 +13,7 @@ First Pass
 
 Future thoughts:
 -Alert when any type of mission is about to rotate
+-Level capping?
 -Progress mode (track the casters progress)
 -Event support
 -Warframe info cmds

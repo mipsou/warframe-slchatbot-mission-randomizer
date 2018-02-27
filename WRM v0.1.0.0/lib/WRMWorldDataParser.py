@@ -61,9 +61,9 @@ def ExtractAlertMissions(data, settings, parent):
 		node = mission['MissionInfo']['location']
 		solNodeInfo = solNodes[node]
 		mission['MissionInfo']['solNode'] = solNodeInfo
-		mission['MissionInfo']['spType'] = 'alert'
+		mission['spType'] = 'alert'
 		
-		missionDict[node] = Mission.Mission(False, node, mission['MissionInfo'])
+		missionDict[node] = Mission.Mission(False, node, mission)
 	
 	return missionDict
 	
@@ -193,7 +193,6 @@ def ExtractCetusMissions(data, settings, parent):
 	#jsonMis = json.dumps(cetusInfo, encoding='utf-8', ensure_ascii=False)
 	#parent.Log('cetusstruct', jsonMis)
 	
-	
 	for mission in cetusInfo['Jobs']:
 		node = cetusInfo['_id']['$oid'] + str(mission['masteryReq'])
 		mission['_id']= {'$oid': node}
@@ -240,7 +239,6 @@ def printMissionList(parent):
 	solNodes = GetSolDict()
 			
 	for node in solNodes:
-		# START FILTERING YA
 		
 		nodeface = json.dumps(node, encoding='utf-8', ensure_ascii=False)
 		parent.Log('Wrf', nodeface)

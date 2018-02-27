@@ -11,18 +11,39 @@ import random
 import sqlite3
 import sys
 import time
+import math
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 import Node
+sys.path.append(os.path.join(os.path.dirname(__file__), "../lib"))
+import timeDate
+
+
 
 def GetRelicsDict():
-	relicNamesJSON = os.path.join(os.path.dirname(__file__), "../lib/jsons/relicNames.json")
+	relicNamesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/relicNames.json")
 	if relicNamesJSON and os.path.isfile(relicNamesJSON):
 		with codecs.open(relicNamesJSON) as f:
 			relicNames = json.load(f)
 	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 	return relicNames
+	
+def GetFactionNames():
+	factionNamesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/factionNames.json")
+	if factionNamesJSON and os.path.isfile(factionNamesJSON):
+		with codecs.open(factionNamesJSON) as f:
+			factionNames = json.load(f)
+	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
+	return factionNames
 
+# TODO only fetch language.json once ?
+def GetLanguageFile():
+	languageJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/languages.json")
+	if languageJSON and os.path.isfile(languageJSON):
+		with codecs.open(languageJSON) as f:
+			languageDict = json.load(f)
+	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
+	return languageDict
 #--------------------------------------------
 #
 #Alert MissionInfo:
@@ -137,17 +158,59 @@ class Mission:
 				self.basic = False
 		elif spData != False:
 			if type(node) is str:
-			
-				self.node = Node.Node(spData, node, False)
-				self.basic = False
 				if 'spType' in spData:
 					self.spType = spData['spType']
+					if self.spType == 'alert':
+						self.node = Node.Node(spData['MissionInfo'], node, False)
+					else:
+						self.node = Node.Node(spData, node, False)
+					self.basic = False
+					self.specialDataInserts(spData)
 				else:
 					self.spType = 'LOST'
 		
-		
 		return
 		
+	# TODO rewards
+		
+	def specialDataInserts(self, data):
+		self.activation = timeDate.parseDate(data['Activation'])
+		if self.spType == 'alert':
+			self.expiry = timeDate.parseDate(data['Expiry'])
+			self.eta = self.getETAString()
+			self.expired = self.getExpired()
+		elif self.spType == 'fissure':
+			self.expiry = timeDate.parseDate(data['Expiry'])
+			self.eta = self.getETAString()
+			self.expired = self.getExpired()
+			tierTypes = GetRelicsDict()
+			self.tier = tierTypes[data['Modifier']]
+		elif self.spType == 'invasion':
+			self.defenderFaction = (GetFactionNames())[data['DefenderMissionInfo']['faction']]
+			self.attackerFaction = (GetFactionNames())[data['AttackerMissionInfo']['faction']]
+				
+			self.completed = data['Completed']
+			self.count = data['Count']
+			self.requiredRuns = data['Goal']
+			
+			if self.attackerFaction != 'Infested':
+				self.vsInfestation = False
+				self.completion = (1+(self.count / self.requiredRuns)) * 50
+			else:
+				self.vsInfestation = True
+				self.completion = (1+(self.count / self.requiredRuns)) * 100
+			
+			self.eta = self.getETAInvasion()
+			
+		elif self.spType == 'bounty':
+			self.masteryReq = data['masteryReq']
+			self.jobType = (GetLanguageFile())[(data['jobType']).lower()]
+		else:
+			return
+		
+		
+		return
+	
 	def toDict(self):
 		node = self.getNode()
 		id = self.getNodeId()
@@ -196,3 +259,24 @@ class Mission:
 			return self.Expiry
 		else:
 			return ''
+			
+	def getRemainingTime(self):
+		completedRuns = abs(self.count);
+		elapsedMillis = timeDate.toNow(self.activation);
+		remainingRuns = self.requiredRuns - completedRuns;
+		return remainingRuns * (elapsedMillis / completedRuns);
+	
+	def getETAString(self):
+		return timeDate.timeDeltaToString(timeDate.fromNow(self.expiry))
+		
+	def getETAInvasion(self):
+		return timeDate.timeDeltaToString(self.getRemainingTime())
+			
+	def getExpired(self):
+		return timeDate.fromNow(self.expiry) < 0;
+		
+	def getJobType(self):
+		return self.jobType
+		
+	def getMasteryReq(self):
+		return self.masteryReq
