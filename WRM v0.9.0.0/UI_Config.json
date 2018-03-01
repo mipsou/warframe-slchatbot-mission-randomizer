@@ -136,6 +136,34 @@
         "tooltip": "",
         "group": "Randomizer:Special Settings"
     },
+	"togLith": {
+        "type": "checkbox",
+        "value": true,
+        "label": "Toggle Lith missions.",
+        "tooltip": "Toggles all Lith missions.",
+        "group": "Randomizer:Relics Settings"
+    },
+	"togMeso": {
+        "type": "checkbox",
+        "value": true,
+        "label": "Toggle Meso missions.",
+        "tooltip": "Toggles all Meso missions.",
+        "group": "Randomizer:Relics Settings"
+    },
+	"togNeo": {
+        "type": "checkbox",
+        "value": true,
+        "label": "Toggle Neo missions.",
+        "tooltip": "Toggles all Neo missions.",
+        "group": "Randomizer:Relics Settings"
+    },
+	"togAxi": {
+        "type": "checkbox",
+        "value": true,
+        "label": "Toggle Axi missions.",
+        "tooltip": "Toggles all Axi missions.",
+        "group": "Randomizer:Relics Settings"
+    },
 	"togCetus": {
         "type": "checkbox",
         "value": true,
@@ -381,11 +409,18 @@
         "tooltip": "Toggle Interception missions.",
         "group": "Randomizer:Types Settings"
     },
-	"togMobiledefense": {
+	"togMobileDefense": {
         "type": "checkbox",
         "value": true,
         "label": "Toggle Mobile Defense missions",
         "tooltip": "Toggle Mobile Defense missions.",
+        "group": "Randomizer:Types Settings"
+    },
+	"togRescue": {
+        "type": "checkbox",
+        "value": true,
+        "label": "Toggle Rescue missions",
+        "tooltip": "Toggle Rescue missions.",
         "group": "Randomizer:Types Settings"
     },
 	"togSpy": {

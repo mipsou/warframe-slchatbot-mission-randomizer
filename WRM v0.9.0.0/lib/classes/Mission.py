@@ -184,7 +184,7 @@ class Mission:
 			self.eta = self.getETAString()
 			self.expired = self.getExpired()
 			tierTypes = GetRelicsDict()
-			self.tier = tierTypes[data['Modifier']]
+			self.tier = (tierTypes[data['Modifier']])['value']
 		elif self.spType == 'invasion':
 			self.defenderFaction = (GetFactionNames())[data['DefenderMissionInfo']['faction']]
 			self.attackerFaction = (GetFactionNames())[data['AttackerMissionInfo']['faction']]
@@ -204,7 +204,7 @@ class Mission:
 			
 		elif self.spType == 'bounty':
 			self.masteryReq = data['masteryReq']
-			self.jobType = (GetLanguageFile())[(data['jobType']).lower()]
+			self.jobType = ((GetLanguageFile())[(data['jobType']).lower()])['value']
 		else:
 			return
 		
@@ -245,6 +245,9 @@ class Mission:
 	def isBasic(self):
 		return self.basic
 	
+	def getGear(self):
+		return self.node.getGear()
+	
 	def getSpType(self):
 		return self.spType
 		
@@ -262,6 +265,8 @@ class Mission:
 			
 	def getRemainingTime(self):
 		completedRuns = abs(self.count);
+		if completedRuns == 0:
+			completedRuns = 1
 		elapsedMillis = timeDate.toNow(self.activation);
 		remainingRuns = self.requiredRuns - completedRuns;
 		return remainingRuns * (elapsedMillis / completedRuns);
@@ -274,9 +279,18 @@ class Mission:
 			
 	def getExpired(self):
 		return timeDate.fromNow(self.expiry) < 0;
-		
+	
+	def getRelicTier(self):
+		if hasattr(self,'tier'):
+			return self.tier
+		else:
+			return False
+	
 	def getJobType(self):
-		return self.jobType
+		if hasattr(self,'jobType'):
+			return self.jobType
+		else:
+			return False
 		
 	def getMasteryReq(self):
 		return self.masteryReq

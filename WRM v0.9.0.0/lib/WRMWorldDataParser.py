@@ -15,7 +15,6 @@ import time
 sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 import Mission
 
-
 def GetSolDict():
 	solNodesJSON = os.path.join(os.path.dirname(__file__), "../lib/jsons/solNodes.json")
 	if solNodesJSON and os.path.isfile(solNodesJSON):
@@ -57,12 +56,13 @@ def ExtractAlertMissions(data, settings, parent):
 	solNodes = GetSolDict()
 	#.Alerts
 	for mission in data:
-			
+		#jsonMis = json.dumps(mission, encoding='utf-8', ensure_ascii=False)
+		#parent.Log('ALERTS', jsonMis)
+		
 		node = mission['MissionInfo']['location']
 		solNodeInfo = solNodes[node]
 		mission['MissionInfo']['solNode'] = solNodeInfo
 		mission['spType'] = 'alert'
-		
 		missionDict[node] = Mission.Mission(False, node, mission)
 	
 	return missionDict
@@ -184,6 +184,7 @@ def ExtractCetusMissions(data, settings, parent):
 	
 	missionDict = {}
 	cetusInfo = {}
+	#.Syndicates
 	#cetusInfo['Jobs'] == [bountyMissions]
 	
 	for syndicate in data:
@@ -229,8 +230,7 @@ def CompileMissionsList(settings, parent):
 		if 'type' in snode and typeS != 'Ancient Retribution' and typeS != 'Conclave' and typeS != 'Relay':
 	
 			
-			faceData = json.dumps(solNodes[node], encoding='utf-8', ensure_ascii=False)
-			
+			#faceData = json.dumps(solNodes[node], encoding='utf-8', ensure_ascii=False)
 			missionDict[node] = Mission.Mission(solNodes[node], node, False)
 		
 	return missionDict

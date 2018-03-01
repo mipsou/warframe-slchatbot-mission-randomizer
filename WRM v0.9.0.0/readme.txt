@@ -1,17 +1,21 @@
 
-First version of mission list parsing complete.
-	Still have some fields to add to Mission class
-Then onto the randomizer
+-Working on filters in randomizer
+-Update json usage with jsonLoader
+-Look at updating special missions with seperate classes
+-Dont clutter load jsons (load once and pass on, class?)
+-Verify Index and Arena works
 
 First Pass
--Fetch data every X minutes ( defaults to 5 )
--Toggle Special missions
--Toggle mission Zones
--Toggle mission Types
--Settings changer commands
+-Toggle Special missions X
+-Toggle mission Zones X
+-Toggle mission Types X
 -Hot reloading and recreate random list
+	On save settings X
+	On command request -
+-Fetch data every X minutes ( defaults to 200 seconds ) X
 
 Future thoughts:
+-Settings changer commands
 -Alert when any type of mission is about to rotate
 -Level capping?
 -Progress mode (track the casters progress)

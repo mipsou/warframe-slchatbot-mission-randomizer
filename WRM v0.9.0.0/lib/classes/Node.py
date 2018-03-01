@@ -18,13 +18,13 @@ def GetMissionTypeDict(source):
 		if missionTypesJSON and os.path.isfile(missionTypesJSON):
 			with codecs.open(missionTypesJSON) as f:
 				missionTypes = json.load(f)
-		sys.path.append(os.path.join(os.path.dirname(__file__), "../../lib/classes"))
+		sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 	elif source == 'bounty':
 		languagesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/languages.json")
 		if languagesJSON and os.path.isfile(languagesJSON):
 			with codecs.open(languagesJSON) as f:
 				missionTypes = json.load(f)
-		sys.path.append(os.path.join(os.path.dirname(__file__), "../../lib/classes"))
+		sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 		
 	return missionTypes
 	
@@ -62,14 +62,13 @@ def getMissionType(value):
 			return [splitValue[2] + splitValue[3]]
 		else:
 			return splitValue[2]
-	else:
-		if splitValue[-1] == '(Archwing)':
-			if len(splitValue) == 3:
-				return [splitValue[0] + splitValue[1], 'Archwing']
-			else:
-				return [splitValue[0], 'Archwing']
+	elif splitValue[-1] == '(Archwing)':
+		if len(splitValue) == 3:
+			return [splitValue[0] + ' ' + splitValue[1], 'Archwing']
 		else:
-			return value
+			return [splitValue[0], 'Archwing']
+	else:
+		return value
 	
 class Node:
 	def __init__(self, data, node, basic):
@@ -102,7 +101,8 @@ class Node:
 				self.faction = factionNames[data['solNode']['enemy']]['value']
 			else:
 				self.faction = data['solNode']['enemy']
-			
+				
+			self.setTypeBySpecial(data)
 		return
 
 	def __iter__(self):
@@ -140,5 +140,19 @@ class Node:
 				self.gear = mType[1]
 		else:
 			self.type = mType
+			self.gear = 'Warframe'
+		return
+	
+	def setTypeBySpecial(self, data):
+		if 'missionType' in data:
+			mDict = GetMissionTypeDict('mission')
+			self.type = (mDict[data['missionType']])['value']
+		
+		if 'MissionType' in data:
+			mDict = GetMissionTypeDict('mission')
+			self.type = (mDict[data['MissionType']])['value']
+		if 'archwingRequired' in data:
+			self.gear = 'Archwing'
+		else:
 			self.gear = 'Warframe'
 		return

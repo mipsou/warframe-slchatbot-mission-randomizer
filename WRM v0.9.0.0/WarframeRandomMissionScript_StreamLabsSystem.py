@@ -35,18 +35,23 @@ Version = "0.1.0.0"
 
 SettingsFile = os.path.join(os.path.dirname(__file__), "WRMConfig.json")
 # TODO POPULATE settingsOptions
+#	nightmare, kuvafarm and 
+#
 settingsOptions = ["togSpecialIgnoreType","togSpecialIgnoreZone",
 "togAlerts","alertWeight","togArchwing","archwingWeight",
 "togBosses","bossWeight","togNightmare","nightmareWeight",
-"togRelics","relicWeight","togCetus","cetusWeight",
+"togSyndicate", "togSyndicateWeight",
+"togRelics","relicWeight","togLith","togMeso","togNeo","togAxi",
+"togCetus","cetusWeight",
 "togInvasions","invasionWeight","togKuvaFarm","kuvafarmWeight",
 "togRegular","togMercury","togVenus","togEarth","togMars","togPhobos",
 "togCeres","togJupiter","togEuropa","togSaturn","togUranus","togNeptune",
 "togPluto","togEris","togSedna","togVoid1","togVoid2","togVoid3",
 "togVoid4","togDerelict","togLua","togKuvaFortress","togCapture",
 "togDefection","togDefense","togExcavation","togExterminate","togHijack",
-"togInfestedsalvage","togInterception","togMobiledefense","togSpy",
-"togSurvival","togArena","togSabotage","togDeceptionS","togtogHiveS",
+"togInfestedsalvage","togInterception","togMobileDefense","self.togRescue"
+"togSpy",
+"togSurvival","togArena","togSabotage","togDeceptionS","togHiveS",
 "togOrokinS","togSealabS"]
 weightActions = []
 
@@ -67,7 +72,12 @@ def sendMessage(a, b):
 
 	
 def ShouldUpdateData():
-	return True
+	global WorldDataMissions
+	
+	if not 'WorldDataMissions' in globals():
+		return True
+	else:
+		return WorldDataMissions.ShouldUpdate()
 	
 def RequestWorldData():
 	worldStateResponse = Parent.GetRequest("http://content.warframe.com/dynamic/worldState.php",{})
@@ -78,16 +88,19 @@ def RequestWorldData():
 	return worldDataObject
 	
 def UpdateWorldState(worldDataExists):
-	unix = time.time()
+	global MySettings, WorldDataMissions
+	unix = datetime.datetime.today()
 	#Check if worldData already exists
 	
 	if not worldDataExists:
 		fetchedWorldData = RequestWorldData()
-		worldDataObject = WRMWorldDataMissions.WorldData(MySettings, fetchedWorldData, Parent)
+		worldDataObject = WRMWorldDataMissions.WorldData(MySettings, fetchedWorldData, Parent, unix)
 	else:
 		if ShouldUpdateData():
 			fetchedWorldData = RequestWorldData()
-			worldDataObject = WRMWorldDataMissions.WorldData(MySettings, fetchedWorldData, Parent)
+			WorldDataMissions.buildMissions(MySettings, fetchedWorldData, Parent, unix)
+		else:
+			WorldDataMissions.buildMissions(MySettings, fetchedWorldData, Parent, unix)
 
 	return worldDataObject
 #---------------------------------------
@@ -121,6 +134,10 @@ class Settings:
 			self.alertWeight = 1
 			self.togRelics = True
 			self.relicWeight = 1
+			self.togLith = True
+			self.togMeso = True
+			self.togNeo = True
+			self.togAxi = True
 			self.togCetus = True
 			self.cetusWeight = 1
 			self.togInvasions = True
@@ -155,13 +172,14 @@ class Settings:
 			self.togHijack = True
 			self.togInfestedsalvage = True
 			self.togInterception = True
-			self.togMobiledefense = True
+			self.togMobileDefense = True
+			self.togRescue = True
 			self.togSpy = True
 			self.togSurvival = True
 			self.togArena = True
 			self.togSabotage = True
 			self.togDeceptionS = True
-			self.togtogHiveS = True
+			self.togHiveS = True
 			self.togOrokinS = True
 			self.togSealabS = True			
 			self.settingsConfig = "!wrmsettings"
@@ -189,32 +207,20 @@ class Settings:
 #   [Required] Intialize Data (Only called on Load)
 # SSR SPR---------------------------------------
 def Init():
-	global MySettings, Manager, WorldDataMissions, ShouldUpdate
-	ShouldUpdate = False
+	global MySettings, Manager, WorldDataMissions, unix
 	unix = time.time()
 	MySettings = Settings(SettingsFile)
 	WorldDataMissions = UpdateWorldState(False)
-	Manager = WRMRandomizer.Manager(WorldDataMissions,MySettings,Parent,unix)
+	Manager = WRMRandomizer.Manager(WorldDataMissions,MySettings,Parent)
 	
-	
-	rMissions = WorldDataMissions.getRegularDict()
-	Parent.Log('regMisLen', str(len(rMissions)))
-	PrintMissions('rMis', rMissions)
-	aMissions = WorldDataMissions.getAlertDict()
-	PrintMissions('aMis', aMissions)
-	fMissions = WorldDataMissions.getFissureDict()
-	PrintMissions('fMis', fMissions)
-	iMissions = WorldDataMissions.getInvasionDict()
-	PrintMissions('iMis', iMissions)
-	cMissions = WorldDataMissions.getCetusDict()
-	PrintMissions('cMis', cMissions)
+	#PrintTheBunch(WorldDataMissions)
 	return
 
 #---------------------------------------
 #   [Required] Execute Data / Process Messages
 # SSR---------------------------------------
 def Execute(data):
-	global MySettings, Manager
+	global MySettings, Manager, WorldDataMissions, unix
 	user = data.User
 	
 	if data.IsChatMessage():
@@ -232,8 +238,11 @@ def Execute(data):
 					elif MySettings.togCooldownCaster and Parent.HasPermission(user, "Caster", "") :
 						Parent.SendTwitchMessage(MySettings.respCooldownUser.format(user, timerCooldownUser))
 				else:
-					jam = 1
-					#TODO run the randomizer!
+					if ShouldUpdateData():
+						WorldDataMissions = UpdateWorldState(True)
+						Manager.UpdateManager(WorldDataMissions, MySettings)
+					selectedMission = Manager.SelectMission()
+					Parent.SendTwitchMessage("{0}".format(selectedMission))
 			else:
 				Parent.SendTwitchMessage(MySettings.respNotLive.format(user))
 				
@@ -305,12 +314,11 @@ def SaveSettings(self, settingsFile):
 # wipe use settings prior to reload. In Unload()
 # SSO SPO---------------------------------------
 def ReloadSettings(jsonData):
-	global MySettings, Manager, WorldDataMissions, ShouldUpdate
-	ShouldUpdate = False
-	unix = time.time()
-	MySettings = Settings(SettingsFile)
-	WorldDataMissions = UpdateWorldState(True)
-	Manager = WRMRandomizer.Manager(WorldDataMissions,MySettings,Parent,unix)
+	global MySettings, Manager, WorldDataMissions
+	MySettings.ReloadSettings(jsonData)
+	
+	WorldDataMissions = UpdateWorldState(False)
+	Manager.UpdateManager(WorldDataMissions, MySettings)
 	return
 
 #---------------------------------------
@@ -330,7 +338,7 @@ def ScriptToggled(state):
 	global MySettings
 	if not state:
 		MySettings.SaveSettings(SettingsFile)
-	return state
+	return
 
 	
 #---------------------------------------
@@ -341,6 +349,20 @@ def ScriptToggled(state):
 #	make a timer thing?
 # SSR---------------------------------------
 def Tick():
+	return
+	
+def PrintTheBunch(data):
+	rMissions = WorldDataMissions.getRegularDict()
+	Parent.Log('regMisLen', str(len(rMissions)))
+	PrintMissions('rMis', rMissions)
+	aMissions = WorldDataMissions.getAlertDict()
+	PrintMissions('aMis', aMissions)
+	fMissions = WorldDataMissions.getFissureDict()
+	PrintMissions('fMis', fMissions)
+	iMissions = WorldDataMissions.getInvasionDict()
+	PrintMissions('iMis', iMissions)
+	cMissions = WorldDataMissions.getCetusDict()
+	PrintMissions('cMis', cMissions)
 	return
 
 def PrintMissions(origin, missionDict):
