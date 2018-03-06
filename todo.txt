@@ -1,8 +1,5 @@
 
--Working on filters in randomizer
--Update json usage with jsonLoader
 -Look at updating special missions with seperate classes
--Dont clutter load jsons (load once and pass on, class?)
 -Verify Index and Arena works
 
 First Pass

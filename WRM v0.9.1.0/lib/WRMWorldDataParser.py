@@ -15,14 +15,6 @@ import time
 sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 import Mission
 
-def GetSolDict():
-	solNodesJSON = os.path.join(os.path.dirname(__file__), "../lib/jsons/solNodes.json")
-	if solNodesJSON and os.path.isfile(solNodesJSON):
-		with codecs.open(solNodesJSON) as f:
-			solNodes = json.load(f)
-	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
-	return solNodes
-
 #--------------------------------------------
 #
 #JSON Alert MissionInfo:
@@ -51,9 +43,9 @@ def GetSolDict():
 #--------------------------------------------
 #	MissionInfo is found on any special mission JSON point
 
-def ExtractAlertMissions(data, settings, parent):
+def ExtractAlertMissions(data, settings, parent, jsonLoader):
 	missionDict = {}
-	solNodes = GetSolDict()
+	solNodes = jsonLoader.getSolNodes()
 	#.Alerts
 	for mission in data:
 		#jsonMis = json.dumps(mission, encoding='utf-8', ensure_ascii=False)
@@ -63,7 +55,7 @@ def ExtractAlertMissions(data, settings, parent):
 		solNodeInfo = solNodes[node]
 		mission['MissionInfo']['solNode'] = solNodeInfo
 		mission['spType'] = 'alert'
-		missionDict[node] = Mission.Mission(False, node, mission)
+		missionDict[node] = Mission.Mission(False, node, mission, jsonLoader)
 	
 	return missionDict
 	
@@ -85,9 +77,9 @@ def ExtractAlertMissions(data, settings, parent):
 #	Node: <SolNode>
 #----------------------------------------------
 
-def ExtractFissureMissions(data, settings, parent):
+def ExtractFissureMissions(data, settings, parent, jsonLoader):
 	missionDict = {}
-	solNodes = GetSolDict()
+	solNodes = jsonLoader.getSolNodes()
 	#.ActiveMissions
 	
 	for mission in data:
@@ -99,7 +91,7 @@ def ExtractFissureMissions(data, settings, parent):
 		mission['solNode'] = solNodeInfo
 		mission['spType'] = 'fissure'
 		
-		missionDict[node] = Mission.Mission(False, node, mission)
+		missionDict[node] = Mission.Mission(False, node, mission, jsonLoader)
 	
 	return missionDict
 
@@ -138,9 +130,9 @@ def ExtractFissureMissions(data, settings, parent):
 #		faction: FactionString
 #-----------------------------------------------
 
-def ExtractInvasionMissions(data, settings, parent):
+def ExtractInvasionMissions(data, settings, parent, jsonLoader):
 	missionDict = {}
-	solNodes = GetSolDict()
+	solNodes = jsonLoader.getSolNodes()
 	#.Invasions
 	
 	for mission in data:
@@ -152,7 +144,7 @@ def ExtractInvasionMissions(data, settings, parent):
 		mission['solNode'] = solNodeInfo
 		mission['spType'] = 'invasion'
 		
-		missionDict[node] = Mission.Mission(False, node, mission)
+		missionDict[node] = Mission.Mission(False, node, mission, jsonLoader)
 	
 	return missionDict
 
@@ -180,7 +172,7 @@ def ExtractInvasionMissions(data, settings, parent):
 #			$numberLong: LongInt
 #
 #-----------------------------------------------
-def ExtractCetusMissions(data, settings, parent):
+def ExtractCetusMissions(data, settings, parent, jsonLoader):
 	
 	missionDict = {}
 	cetusInfo = {}
@@ -204,16 +196,16 @@ def ExtractCetusMissions(data, settings, parent):
 		mission['Activation'] = cetusInfo['Activation']
 		mission['Expiry'] = cetusInfo['Expiry']
 		mission['Seed'] = cetusInfo['Seed']
-		missionDict[node] = Mission.Mission(False, node, mission)
+		missionDict[node] = Mission.Mission(False, node, mission, jsonLoader)
 	return missionDict
 
 # Create a dict from solNodes to establish an interfacable data structure
 # where each node is of class Mission.
 
-def CompileMissionsList(settings, parent):
+def CompileMissionsList(settings, parent, jsonLoader):
 	#.solNodes
 	missionDict = {}
-	solNodes = GetSolDict()
+	solNodes = jsonLoader.getSolNodes()
 			
 	for node in solNodes:
 		
@@ -231,12 +223,12 @@ def CompileMissionsList(settings, parent):
 	
 			
 			#faceData = json.dumps(solNodes[node], encoding='utf-8', ensure_ascii=False)
-			missionDict[node] = Mission.Mission(solNodes[node], node, False)
+			missionDict[node] = Mission.Mission(solNodes[node], node, False, jsonLoader)
 		
 	return missionDict
 	
-def printMissionList(parent):
-	solNodes = GetSolDict()
+def printMissionList(parent, jsonLoader):
+	solNodes = jsonLoader.getSolNodes()
 			
 	for node in solNodes:
 		

@@ -168,7 +168,7 @@ class Manager:
 			self.selectionPool.append(missionString)
 		
 		#self.parent.Log('Added fissure: ', missionString)
-		self.parent.Log('tW ', str(tW))
+		#self.parent.Log('tW ', str(tW))
 		return
 		
 	# When rolling selection, add a 1d2 roll on invasions as mitigation for running thrice	

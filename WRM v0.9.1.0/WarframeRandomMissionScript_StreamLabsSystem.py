@@ -27,7 +27,7 @@ ScriptName = "Warframe Random Mission Script"
 Website = "http://www.twitch.tv/rickie26k"
 Description = "!wrmmission"
 Creator = "Rickie26k"
-Version = "0.9.0.1"
+Version = "0.9.1.0"
 
 #---------------------------------------
 #   Set Variables

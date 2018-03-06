@@ -19,31 +19,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../lib"))
 import timeDate
 
 
-
-def GetRelicsDict():
-	relicNamesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/relicNames.json")
-	if relicNamesJSON and os.path.isfile(relicNamesJSON):
-		with codecs.open(relicNamesJSON) as f:
-			relicNames = json.load(f)
-	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
-	return relicNames
-	
-def GetFactionNames():
-	factionNamesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/factionNames.json")
-	if factionNamesJSON and os.path.isfile(factionNamesJSON):
-		with codecs.open(factionNamesJSON) as f:
-			factionNames = json.load(f)
-	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
-	return factionNames
-
-# TODO only fetch language.json once ?
-def GetLanguageFile():
-	languageJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/languages.json")
-	if languageJSON and os.path.isfile(languageJSON):
-		with codecs.open(languageJSON) as f:
-			languageDict = json.load(f)
-	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
-	return languageDict
 #--------------------------------------------
 #
 #Alert MissionInfo:
@@ -145,11 +120,11 @@ def GetLanguageFile():
 #
 
 class Mission:
-	def __init__(self, nData, node, spData):
+	def __init__(self, nData, node, spData, jsonLoader):
 		#using nData, normally directly from solNodes
 		if nData != False:
 			if type(node) is str:
-				self.node = Node.Node(nData, node, True)
+				self.node = Node.Node(nData, node, True, jsonLoader)
 				self.basic = True
 				self.spType = 'Nope'
 			else: # REDUNDANT?
@@ -161,11 +136,11 @@ class Mission:
 				if 'spType' in spData:
 					self.spType = spData['spType']
 					if self.spType == 'alert':
-						self.node = Node.Node(spData['MissionInfo'], node, False)
+						self.node = Node.Node(spData['MissionInfo'], node, False, jsonLoader)
 					else:
-						self.node = Node.Node(spData, node, False)
+						self.node = Node.Node(spData, node, False, jsonLoader)
 					self.basic = False
-					self.specialDataInserts(spData)
+					self.specialDataInserts(spData, jsonLoader)
 				else:
 					self.spType = 'LOST'
 		
@@ -173,7 +148,7 @@ class Mission:
 		
 	# TODO rewards
 		
-	def specialDataInserts(self, data):
+	def specialDataInserts(self, data, jsonLoader):
 		self.activation = timeDate.parseDate(data['Activation'])
 		if self.spType == 'alert':
 			self.expiry = timeDate.parseDate(data['Expiry'])
@@ -183,11 +158,11 @@ class Mission:
 			self.expiry = timeDate.parseDate(data['Expiry'])
 			self.eta = self.getETAString()
 			self.expired = self.getExpired()
-			tierTypes = GetRelicsDict()
+			tierTypes = jsonLoader.getRelicNames()
 			self.tier = (tierTypes[data['Modifier']])['value']
 		elif self.spType == 'invasion':
-			self.defenderFaction = (GetFactionNames())[data['DefenderMissionInfo']['faction']]
-			self.attackerFaction = (GetFactionNames())[data['AttackerMissionInfo']['faction']]
+			self.defenderFaction = (jsonLoader.getFactionNames())[data['DefenderMissionInfo']['faction']]
+			self.attackerFaction = (jsonLoader.getFactionNames())[data['AttackerMissionInfo']['faction']]
 				
 			self.completed = data['Completed']
 			self.count = data['Count']
@@ -204,7 +179,7 @@ class Mission:
 			
 		elif self.spType == 'bounty':
 			self.masteryReq = data['masteryReq']
-			self.jobType = ((GetLanguageFile())[(data['jobType']).lower()])['value']
+			self.jobType = ((jsonLoader.getLanguageFile())[(data['jobType']).lower()])['value']
 		else:
 			return
 		

@@ -15,6 +15,7 @@ import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../lib"))
 import WRMWorldDataParser
+import WRMjsonLoader
 
 #	recreate the world-state-parser from here
 #	make the ParseArray( ParserClass, dataArray, "deps" )
@@ -25,6 +26,7 @@ import WRMWorldDataParser
 class WorldData:
 	def __init__(self, settings, worldData, parent, utime):
 		self.pParent = parent
+		self.jsonLoader = WRMjsonLoader.JsonLoader()
 		
 		self.buildMissions(settings, worldData, parent, utime)
 		return
@@ -44,23 +46,23 @@ class WorldData:
 		self.timeUpdated = utime
 		#WRMWorldDataParser.printMissionList(parent)
 		if settings.togRegular == True:
-			self.regularMissions = WRMWorldDataParser.CompileMissionsList(settings, parent)
+			self.regularMissions = WRMWorldDataParser.CompileMissionsList(settings, parent, self.jsonLoader)
 		
 		#
 		if settings.togAlerts == True:
-			self.alerts = WRMWorldDataParser.ExtractAlertMissions(data['Alerts'],settings, parent)
+			self.alerts = WRMWorldDataParser.ExtractAlertMissions(data['Alerts'],settings, parent, self.jsonLoader)
 		
 		#
 		if settings.togRelics == True:
-			self.relics = WRMWorldDataParser.ExtractFissureMissions(data['ActiveMissions'],settings, parent)
+			self.relics = WRMWorldDataParser.ExtractFissureMissions(data['ActiveMissions'],settings, parent, self.jsonLoader)
 		
 		#
 		if settings.togInvasions == True:
-			self.invasions = WRMWorldDataParser.ExtractInvasionMissions(data['Invasions'],settings, parent)
+			self.invasions = WRMWorldDataParser.ExtractInvasionMissions(data['Invasions'],settings, parent, self.jsonLoader)
 		
 		#
 		if settings.togCetus == True:
-			self.cetus = WRMWorldDataParser.ExtractCetusMissions(data['SyndicateMissions'],settings, parent)
+			self.cetus = WRMWorldDataParser.ExtractCetusMissions(data['SyndicateMissions'],settings, parent, self.jsonLoader)
 
 		return
 	

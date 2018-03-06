@@ -12,30 +12,6 @@ import sqlite3
 import sys
 import time
 
-def GetMissionTypeDict(source):
-	if source == 'mission':
-		missionTypesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/missionTypes.json")
-		if missionTypesJSON and os.path.isfile(missionTypesJSON):
-			with codecs.open(missionTypesJSON) as f:
-				missionTypes = json.load(f)
-		sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
-	elif source == 'bounty':
-		languagesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/languages.json")
-		if languagesJSON and os.path.isfile(languagesJSON):
-			with codecs.open(languagesJSON) as f:
-				missionTypes = json.load(f)
-		sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
-		
-	return missionTypes
-	
-def GetFactionNames():
-	factionNamesJSON = os.path.join(os.path.dirname(__file__), "../../lib/jsons/factionNames.json")
-	if factionNamesJSON and os.path.isfile(factionNamesJSON):
-		with codecs.open(factionNamesJSON) as f:
-			factionNames = json.load(f)
-	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
-	return factionNames
-
 sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 
 def splitLocationValue(value):
@@ -71,7 +47,7 @@ def getMissionType(value):
 		return value
 	
 class Node:
-	def __init__(self, data, node, basic):
+	def __init__(self, data, node, basic, jsonLoader):
 	
 		if basic == True:
 			self.id = node
@@ -94,7 +70,7 @@ class Node:
 			self.name = location[0]
 			self.zone = location[1]
 			
-			factionNames = GetFactionNames()
+			factionNames = jsonLoader.getFactionNames()
 			if 'faction' in data:
 				self.faction = factionNames[data['faction']]['value']
 			elif data['solNode']['enemy'] in factionNames:
@@ -102,7 +78,7 @@ class Node:
 			else:
 				self.faction = data['solNode']['enemy']
 				
-			self.setTypeBySpecial(data)
+			self.setTypeBySpecial(data, jsonLoader)
 		return
 
 	def __iter__(self):
@@ -143,13 +119,13 @@ class Node:
 			self.gear = 'Warframe'
 		return
 	
-	def setTypeBySpecial(self, data):
+	def setTypeBySpecial(self, data, jsonLoader):
 		if 'missionType' in data:
-			mDict = GetMissionTypeDict('mission')
+			mDict = jsonLoader.getMissionTypes()
 			self.type = (mDict[data['missionType']])['value']
 		
 		if 'MissionType' in data:
-			mDict = GetMissionTypeDict('mission')
+			mDict = jsonLoader.getMissionTypes()
 			self.type = (mDict[data['MissionType']])['value']
 		if 'archwingRequired' in data:
 			self.gear = 'Archwing'
