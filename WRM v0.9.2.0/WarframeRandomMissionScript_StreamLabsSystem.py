@@ -27,7 +27,7 @@ ScriptName = "Warframe Random Mission Script"
 Website = "http://www.twitch.tv/rickie26k"
 Description = "!wrmmission"
 Creator = "Rickie26k"
-Version = "0.9.1.0"
+Version = "0.9.2.0"
 
 #---------------------------------------
 #   Set Variables
@@ -70,7 +70,16 @@ def sendMessage(a, b):
 	else:
 		Parent.SendTwitchMessage(b)
 
+def RunUpdateAndRespond():
+	global Manager, MySettings, WorldDataMissions
 	
+	freshWorld = UpdateWorldState(True)
+	updated = Manager.UpdateManager(WorldDataMissions, MySettings)
+	if updated == True:
+		selectedMission = Manager.SelectMission()
+		Parent.SendTwitchMessage("{0}".format(selectedMission))
+	return
+
 def ShouldUpdateData():
 	global WorldDataMissions
 	
@@ -95,14 +104,12 @@ def UpdateWorldState(worldDataExists):
 	if not worldDataExists:
 		fetchedWorldData = RequestWorldData()
 		worldDataObject = WRMWorldDataMissions.WorldData(MySettings, fetchedWorldData, Parent, unix)
+		return worldDataObject
 	else:
 		if ShouldUpdateData():
 			fetchedWorldData = RequestWorldData()
 			WorldDataMissions.buildMissions(MySettings, fetchedWorldData, Parent, unix)
-		else:
-			WorldDataMissions.buildMissions(MySettings, fetchedWorldData, Parent, unix)
-
-	return worldDataObject
+		return
 #---------------------------------------
 # Classes
 #---------------------------------------
@@ -193,6 +200,7 @@ class Settings:
 	# Reload settings on save through UI
 	def ReloadSettings(self, data):
 		self.__dict__ = json.loads(data, encoding="utf-8")
+		Parent.Log('Settings', 'Reloaded.')
 		return
 
 	# Save settings to files (json and js)
@@ -201,6 +209,7 @@ class Settings:
 			json.dump(self.__dict__, f, encoding="utf-8")
 		with codecs.open(SettingsFile.replace("json", "js"), encoding="utf-8-sig", mode="w+") as f:
 			f.write("var settings = {0};".format(json.dumps(self.__dict__, encoding='utf-8')))
+		Parent.Log('Settings', 'Saved.')
 		return
 
 #---------------------------------------
@@ -239,19 +248,19 @@ def Execute(data):
 						Parent.SendTwitchMessage(MySettings.respCooldownUser.format(user, timerCooldownUser))
 				else:
 					if ShouldUpdateData():
-						WorldDataMissions = UpdateWorldState(True)
-						Manager.UpdateManager(WorldDataMissions, MySettings)
-					selectedMission = Manager.SelectMission()
-					Parent.SendTwitchMessage("{0}".format(selectedMission))
+						RunUpdateAndRespond()
+					else:
+						selectedMission = Manager.SelectMission()
+						Parent.SendTwitchMessage("{0}".format(selectedMission))
 			else:
 				Parent.SendTwitchMessage(MySettings.respNotLive.format(user))
 				
 		# SETTINGS COMMANDS
-		elif data.GetParam(0).lower() == MySettings.cmdWrmSettings and Parent.HasPermission(user, MySettings.settingsPermission, ""):
+		elif data.GetParam(0).lower() == MySettings.settingsConfig and Parent.HasPermission(user, MySettings.settingsPermission, ""):
 		
 			
 			if data.GetParamCount() == 1 :
-				Parent.SendTwitchMessage(MySettings.respConfigEmpty.format(user, MySettings.cmdWrmSettings, MySettings.settingsConfigList))
+				Parent.SendTwitchMessage(MySettings.respConfigEmpty.format(user, MySettings.settingsConfig, MySettings.settingsConfigList))
 
 			else:
 				configAction = data.GetParam(1).lower()
@@ -296,16 +305,6 @@ def Parse(parseString,user,target,message):
 	return parseString
 
 #---------------------------------------
-# 	SaveSettings
-#---------------------------------------
-def SaveSettings(self, settingsFile):
-	with codecs.open(SettingsFile, encoding="utf-8-sig", mode="w+") as f:
-		json.dump(self.__dict__, f, encoding="utf-8")
-	with codecs.open(SettingsFile.replace("json", "js"), encoding="utf-8-sig", mode="w+") as f:
-		f.write("var settings = {0};".format(json.dumps(self.__dict__, encoding='utf-8')))
-	return
-
-#---------------------------------------
 #   [Optional] ReloadSettings Function
 #	The ReloadSettings function is an optional function that you can add that will
 #	automatically be called once a user clicks on the Save Settings button in the scripts tab.
@@ -317,8 +316,9 @@ def ReloadSettings(jsonData):
 	global MySettings, Manager, WorldDataMissions
 	MySettings.ReloadSettings(jsonData)
 	
-	WorldDataMissions = UpdateWorldState(False)
+	UpdateWorldState(True)
 	Manager.UpdateManager(WorldDataMissions, MySettings)
+	
 	return
 
 #---------------------------------------
@@ -351,7 +351,8 @@ def ScriptToggled(state):
 def Tick():
 	return
 	
-def PrintTheBunch(data):
+def PrintTheBunch():
+	global WorldDataMissions
 	rMissions = WorldDataMissions.getRegularDict()
 	Parent.Log('regMisLen', str(len(rMissions)))
 	PrintMissions('rMis', rMissions)

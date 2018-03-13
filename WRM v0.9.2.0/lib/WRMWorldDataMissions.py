@@ -35,7 +35,7 @@ class WorldData:
 	def ShouldUpdate(self):
 		now = datetime.datetime.today()
 		seconds = (now - self.timeUpdated).total_seconds()
-		if seconds > 200:
+		if seconds > 30:
 			return True
 		else:
 			return False
@@ -64,6 +64,9 @@ class WorldData:
 		if settings.togCetus == True:
 			self.cetus = WRMWorldDataParser.ExtractCetusMissions(data['SyndicateMissions'],settings, parent, self.jsonLoader)
 
+		if settings.togDerelict == True:
+			self.navMissions = WRMWorldDataParser.AddNavMissions(settings, parent, self.jsonLoader)
+			
 		return
 	
 	def GetMissionsAlerts(self):
@@ -103,6 +106,12 @@ class WorldData:
 		if hasattr(self, 'regularMissions'):
 			return self.regularMissions
 		else:
+			return []
+			
+	def GetNavMissions(self):
+		if hasattr(self, 'navMissions'):
+			return self.navMissions
+		else: 
 			return []
 	
 	def regularJSON(self):
@@ -168,3 +177,10 @@ class WorldData:
 		for mission in missions:
 			cetusDict[mission] = missions[mission].toDict()
 		return cetusDict
+		
+	def getNavDict(self):
+		navDict = {}
+		missions = self.GetNavMissions()
+		for mission in missions:
+			navDict[mission] = missions[mission].toDict()
+		return navDict

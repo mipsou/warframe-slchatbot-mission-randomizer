@@ -52,7 +52,18 @@ Credits:
 	
 
 Changelog:
-
+	Update 0.9.2.0:
+	Updated solNodes. There were some errors present
+	Updated assassination nodes with boss names
+	Added Derelicts
+	Made the script run after forcing a reload on command use
+	Fixed the line 227 cmdWrmSettings error
+	Fixed a reference error in UpdateWorldState
+	Made Desdemona "Sealab"
+	Fixed Assassination and Archwing not getting added
+	Added random generation check layer.
+		(random.random() and all its derivates were delivering halved numbers)
+----------------------
 	Update 0.9.1.0:
 	Updated json loading so the files are only read once
 	instead of once or even twice for each mission in

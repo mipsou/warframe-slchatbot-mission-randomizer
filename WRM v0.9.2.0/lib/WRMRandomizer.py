@@ -65,8 +65,9 @@ class Manager:
 		return
 	
 	def UpdateManager(self, worldData, settings):
+		self.parent.Log('Manager', 'Update Fired.')
 		self.LoadManager(worldData, settings)
-		return
+		return True
 	
 	def LoadManager(self, worldData, settings):
 			
@@ -79,18 +80,47 @@ class Manager:
 		return
 
 	def SelectMission(self):
-		selecting = True
+		selecting = 1
 		self.parent.Log('Default: ', '230 - 240')
-		self.parent.Log('M count: ', str(len(self.selectionPool)))
-		while selecting:
-			selectNumber = random.randrange(1, len(self.selectionPool))
-			selectedMission = self.selectionPool[selectNumber]
-			if selectedMission.startswith('Invasion'):
-				twoD = random.randrange(1,2)
-				if twoD == 2:
-					selecting = False
+		self.parent.Log('Selection Pool count: ', str(len(self.selectionPool)))
+		
+		selectionMp = 1
+		
+		testy = []
+		for x in range(1,1000):
+			rdint = random.random()*100
+			testy.append(rdint)
+		overFiddy = 0
+		for x in testy:
+			if x > 50:
+				derp = overFiddy
+				overFiddy =  1 + derp
+				
+		#I discovered that random.random() does in fact generate a number between 0 and 0.5 rather than 0 and 1 on my system
+		#which is why I added this layer
+		if overFiddy < 300:
+			selectionMp = 2
+		
+		
+		#for option in self.selectionPool:
+		#	self.parent.Log('Mission: ', option)
+		
+		while selecting == 1:
+			selectionNumber = random.randint(0, (len(self.selectionPool))*selectionMp)
+			if selectionNumber > len(self.selectionPool):
+				derp = 1
 			else:
-				selecting = False
+				selectedMission = self.selectionPool[selectionNumber]
+				#self.parent.Log('Mission is ', selectedMission)
+				self.parent.Log('Chose index ', str(selectionNumber))
+				if selectedMission.startswith("Invasion"):
+					twoD = random.randint(0, selectionMp * 10)
+					#self.parent.Log('2d at', str(twoD))
+					if twoD > 5:
+						selecting = 0
+						#self.parent.Log('InvasionD',str(twoD))
+				else:
+					selecting = 0
 		
 		return selectedMission
 		
@@ -105,22 +135,27 @@ class Manager:
 			self.ApplyFilters(self.world.GetMissionsInvasions(), 'invasion')
 		if self.settings.togCetus == True:
 			self.ApplyFilters(self.world.GetMissionsCetus(), 'bounty')
+		if self.settings.togDerelict == True:
+			self.ApplyFilters(self.world.GetNavMissions(), False)
 		return
 		
 	def AddRegular(self, mission):
 		
-		missionString = mission.getType() + ' on ' + mission.getName() + ', ' + mission.getZone()
+		missionString = mission.getType() + ' on ' + mission.getName() + ', ' + mission.getZone() + ' against ' + mission.getFaction()
 		
 		cS = 0
 		cW = 0
 		asWeight = 1
 		arWeight = 1
+		
 		if mission.getType() == 'Assassination':
 			asWeight = int(math.floor(self.settings.bossWeight))
 			if asWeight > 1:
 				for i in range(1, asWeight):
 					cW += 1
 					self.selectionPool.append(missionString)
+			else:
+				self.selectionPool.append(missionString)
 		elif mission.getGear() == 'Archwing':
 			missionString = 'Archwing ' + missionString
 			arWeight = int(math.floor(self.settings.archwingWeight))
@@ -128,12 +163,16 @@ class Manager:
 				for i in range(1, arWeight):
 					cS += 1
 					self.selectionPool.append(missionString)
+			else:
+				self.selectionPool.append(missionString)
 		else:
 			self.selectionPool.append(missionString)
 		
 		#self.parent.Log('Counts CS: ', str(cS))
 		#self.parent.Log('Counts CW: ', str(cW))
 		#self.parent.Log('Added regular: ', missionString)
+		#if len(self.selectionPool) > 0:
+		#	self.parent.Log('In pool: ', self.selectionPool[len(self.selectionPool)-1])
 		return
 		
 	def AddAlert(self, mission):
@@ -187,7 +226,7 @@ class Manager:
 		return
 		
 	def AddBounty(self, mission):
-		#jsonMis = json.dumps(mission.getJobType(), encoding='utf-8', ensure_ascii=False)
+		jsonMis = json.dumps(mission.getJobType(), encoding='utf-8', ensure_ascii=False)
 		#self.parent.Log('cetusstruct', jsonMis)
 		missionString = 'Bounty from Cetus: ' + mission.getJobType()
 		
@@ -224,6 +263,7 @@ class Manager:
 				#printme = json.dumps(missionList[missionInfo].toDict(), ensure_ascii=False, encoding="utf-8")
 				#self.parent.Log('checkMission', printme)
 				if missionList[missionInfo].isBasic() == True:
+					# TODO remove Phorid from the list builder instead
 					if missionList[missionInfo].getZone() != 'hori':
 						if self.FilterZone(missionList[missionInfo]) == True:
 							if self.FilterType(missionList[missionInfo]) == True:
@@ -367,6 +407,7 @@ class Manager:
 		self.typeToggle['Assassination'] = self.settings.togBosses
 		self.typeToggle['Pursuit'] = self.settings.togArchwing
 		self.typeToggle['Rush'] = self.settings.togArchwing
+		return
 		
 	def GetTypes(self):
 		return self.typeToggle

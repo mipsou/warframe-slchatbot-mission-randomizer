@@ -209,9 +209,38 @@ def CompileMissionsList(settings, parent, jsonLoader):
 			
 	for node in solNodes:
 		
-		nodeface = json.dumps(node, encoding='utf-8', ensure_ascii=False)
+		#nodeface = json.dumps(node, encoding='utf-8', ensure_ascii=False)
 		
 		snode = solNodes[node]
+		# Ensure type field is present
+		if 'type' in snode:
+			typeS = snode["type"]
+		else:
+			typeS = ''
+		
+		phd = "Sortie Boss: Phorid"
+		
+		# Filter out Relays, placeholders and conclave missions
+		if 'type' in snode and typeS != 'Ancient Retribution' and typeS != 'Conclave' and typeS != 'Relay' and snode["value"] != phd:
+	
+			
+			#faceData = json.dumps(solNodes[node], encoding='utf-8', ensure_ascii=False)
+			#parent.Log('boss problem', faceData)
+			missionDict[node] = Mission.Mission(solNodes[node], node, False, jsonLoader)
+		
+	return missionDict
+	
+def AddNavMissions(settings, parent, jsonLoader):
+
+	navMissions = jsonLoader.getNavMissions()
+	missionDict = {}
+			
+	for node in navMissions:
+		
+		#nodeface = json.dumps(node, encoding='utf-8', ensure_ascii=False)
+		#parent.Log('Wrf', nodeface)
+		
+		snode = navMissions[node]
 		# Ensure type field is present
 		if 'type' in snode:
 			typeS = snode["type"]
@@ -221,9 +250,9 @@ def CompileMissionsList(settings, parent, jsonLoader):
 		# Filter out Relays, placeholders and conclave missions
 		if 'type' in snode and typeS != 'Ancient Retribution' and typeS != 'Conclave' and typeS != 'Relay':
 	
+			#faceData = json.dumps(navMissions[node], encoding='utf-8', ensure_ascii=False)
 			
-			#faceData = json.dumps(solNodes[node], encoding='utf-8', ensure_ascii=False)
-			missionDict[node] = Mission.Mission(solNodes[node], node, False, jsonLoader)
+			missionDict[node] = Mission.Mission(navMissions[node], node, False, jsonLoader)
 		
 	return missionDict
 	

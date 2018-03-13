@@ -21,6 +21,13 @@ def GetFactionNames():
 	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 	return factionNames
 
+def GetBossLocations():
+	bossesJSON = os.path.join(os.path.dirname(__file__), "../lib/jsons/assassinationTargets.json")
+	if bossesJSON and os.path.isfile(bossesJSON):
+		with codecs.open(bossesJSON) as f:
+			bosses = json.load(f)
+	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
+	return bosses
 	
 def GetMissionType():
 	missionTypesJSON = os.path.join(os.path.dirname(__file__), "../lib/jsons/missionTypes.json")
@@ -29,6 +36,14 @@ def GetMissionType():
 			missionTypes = json.load(f)
 	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 	return missionTypes
+
+def GetNavMissionNodes():
+	navMissionsJSON = os.path.join(os.path.dirname(__file__), "../lib/jsons/navMissions.json")
+	if navMissionsJSON and os.path.isfile(navMissionsJSON):
+		with codecs.open(navMissionsJSON) as f:
+			navMissions = json.load(f)
+	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
+	return navMissions
 	
 def GetRelics():
 	relicNamesJSON = os.path.join(os.path.dirname(__file__), "../lib/jsons/relicNames.json")
@@ -57,6 +72,8 @@ def GetLanguageFile():
 	sys.path.append(os.path.join(os.path.dirname(__file__), "../lib/classes"))
 	return languageDict
 
+
+	
 class JsonLoader:
 	def __init__(self):
 	
@@ -65,6 +82,8 @@ class JsonLoader:
 		self.missionTypes = GetMissionType()
 		self.relicNames = GetRelics()
 		self.solNodes = GetSolNodes()
+		self.bosses = GetBossLocations()
+		self.navMissions = GetNavMissionNodes()
 		#self.syndicateNames = 
 		#self.warframes = 
 		#self.weapons = 
@@ -76,6 +95,9 @@ class JsonLoader:
 		#self.warframes = os.path.join(os.path.dirname(__file__), "/lib/jsons/warframes.json")
 		#self.weapons = os.path.join(os.path.dirname(__file__), "/lib/jsons/weapons.json")
 		
+	def getBossNames(self):
+		return self.bosses
+		
 	def getFactionNames(self):
 		return self.factionNames
 		
@@ -84,6 +106,9 @@ class JsonLoader:
 		
 	def getMissionTypes(self):
 		return self.missionTypes
+		
+	def getNavMissions(self):
+		return self.navMissions
 		
 	def getRelicNames(self):
 		return self.relicNames

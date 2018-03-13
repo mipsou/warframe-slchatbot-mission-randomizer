@@ -59,7 +59,10 @@ class Node:
 				self.faction = data['enemy']
 			
 			self.setTypeBySol(data['type'])
-			
+			if self.type == 'Assassination':
+				bossNames = jsonLoader.getBossNames()
+				enemyTxt = bossNames[self.name] + ', ' + self.faction
+				self.faction = enemyTxt
 		else:
 			if '_id' in data:
 				self.id = data['_id']['$oid']

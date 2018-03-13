@@ -1,0 +1,42 @@
+{
+  "DerelictSurvival": {
+    "value": "ODS (Derelict)",
+    "enemy": "Infested",
+    "type" : "Survival"
+  },
+  "DerelictAladV": {
+    "value": "ODAV (Derelict)",
+    "enemy": "Infested",
+    "type" : "Assassination"
+  },
+  "DerelictLephantis": {
+	"value": "ODAL (Derelict)",
+    "enemy": "Infested",
+    "type" : "Assassination"
+  },
+  "DerelictCapture": {
+    "value": "ODC (Derelict)",
+    "enemy": "Infested",
+    "type" : "Capture"
+  },
+  "DerelictSabotage": {
+    "value": "ODT (Derelict)",
+    "enemy": "Infested",
+    "type" : "Sabotage"
+  },
+  "DerelictDefense": {
+    "value": "ODD (Derelict)",
+    "enemy": "Infested",
+    "type" : "Defense"
+  },
+  "DerelictMobileDefense": {
+    "value": "ODM (Derelict)",
+    "enemy": "Infested",
+    "type" : "Mobile Defense"
+  },
+  "DerelictExterminate": {
+    "value": "ODE (Derelict)",
+    "enemy": "Infested",
+    "type" : "Exterminate"
+  }
+}
