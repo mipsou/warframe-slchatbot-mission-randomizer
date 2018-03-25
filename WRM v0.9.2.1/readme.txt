@@ -52,6 +52,9 @@ Credits:
 	
 
 Changelog:
+	Update 0.9.2.1:
+	Folder level added to zip
+
 	Update 0.9.2.0:
 	Updated solNodes. There were some errors present
 	Updated assassination nodes with boss names
