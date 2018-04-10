@@ -52,6 +52,12 @@ Credits:
 	
 
 Changelog:
+	Update 0.9.2.2:
+	Fixed Sinai to show up as Survival
+	Changed Tikoloshe to Ancient Retribution (marked as inactive)
+	Updated type of Taveuni to Kuva Survival
+		<Will have to check how type filter responds>
+
 	Update 0.9.2.1:
 	Folder level added to zip
 

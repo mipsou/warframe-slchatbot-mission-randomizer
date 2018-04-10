@@ -958,7 +958,7 @@
   , "SolNode192": {
     "value": "Tikoloshe (Sedna)",
     "enemy": "Grineer",
-    "type" : "Spy"
+    "type" : "Ancient Retribution"
   }
   , "SolNode193": {
     "value": "Merrow (Sedna)",
@@ -1227,7 +1227,7 @@
   , "SolNode744": {
     "value": "Taveuni (Kuva Fortress)",
     "enemy": "Grineer",
-    "type" : "Survival"
+    "type" : "Kuva Survival"
   }
   , "SolNode745": {
     "value": "Tamu (Kuva Fortress)",
@@ -1682,7 +1682,7 @@
   , "ClanNode4": {
     "value": "Sinai (Jupiter)",
     "enemy": "Infested",
-    "type" : "Dark Sector Survival"
+    "type" : "Dark Sector Defense"
   }
   , "ClanNode5": {
     "value": "Cameria (Jupiter)",
