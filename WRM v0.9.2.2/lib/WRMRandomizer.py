@@ -392,6 +392,10 @@ class Manager:
 		self.typeToggle['Rescue'] = self.settings.togRescue
 		self.typeToggle['Spy'] = self.settings.togSpy
 		self.typeToggle['Survival'] = self.settings.togSurvival
+		if self.settings.togSurvival:
+			self.typeToggle['Kuva Survival'] = self.settings.togKuvaFortress
+		else:
+			self.typeToggle['Kuva Survival'] = False
 		self.typeToggle['Arena'] = self.settings.togArena
 		self.typeToggle['Sabotage'] = self.settings.togSabotage
 		if self.settings.togSabotage:
